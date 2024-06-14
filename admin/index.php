@@ -1,27 +1,31 @@
 ﻿<?php
 session_start();
 
-if (!isset($_SESSION['admin']) && !isset($_SESSION['user'])) {
+if (!isset($_SESSION['username'])) {
     echo "<script>alert('Anda belum login, silahkan login terlebih dahulu.'); window.location.href = 'login.php';</script>";
     exit();
 }
 
 $koneksi = new mysqli("localhost", "root", "", "farmasi");
 
-// Example of checking if logged in user is an admin
-if (isset($_SESSION['admin'])) {
-    $userRole = 'Admin';
-    $userName = $_SESSION['admin']['nama']; // Change 'nama' to the actual column name for admin's name
-} elseif (isset($_SESSION['user'])) {
-    $userRole = 'User';
-    $userName = $_SESSION['user']['nama']; // Change 'nama' to the actual column name for user's name
+// Check if logged in user is an admin
+if (isset($_SESSION['isAdmin'])) {
+    if ($_SESSION['isAdmin']) {
+        $userRole = 'Admin';
+    } else {
+        $userRole = 'User';
+    }
 } else {
-    // Redirect to login.php if neither admin nor user is set
+    // Redirect to login.php if 'isAdmin' is not set
     header('Location: login.php');
     exit();
 }
 
+$userName = $_SESSION['nama'];
+
+// You can now use $userRole to check the role of the user in your application
 ?>
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>

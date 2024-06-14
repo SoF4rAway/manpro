@@ -13,35 +13,39 @@ if (isset($_POST['login'])) {
     $username = $_POST['user'];
     $password = $_POST['pass'];
 
-    // Check in the admin table
-    $adminQuery = "SELECT * FROM admin WHERE id_admin='$username' AND password='$password'";
-    $adminResult = $koneksi->query($adminQuery);
+    $stmt = $koneksi->prepare("SELECT * FROM USER WHERE username= ? AND password= ?");
+    $stmt->bind_param("ss", $username, $password);
 
-    // Check in the user table
-    $userQuery = "SELECT * FROM user WHERE id_user='$username' AND password='$password'";
-    $userResult = $koneksi->query($userQuery);
+    $stmt->execute();
 
-    if ($adminResult->num_rows == 1) {
-        $adminData = $adminResult->fetch_assoc();
-        $_SESSION['admin'] = $adminData;
-        $_SESSION['role'] = 'Admin'; // Set the role here
-        $message = "<div class='alert alert-info'>Admin login successful</div>";
-        echo "<meta http-equiv='refresh' content='1;url=index.php'>";
-    } elseif ($userResult->num_rows == 1) { 
-        $userData = $userResult->fetch_assoc();
-        $_SESSION['user'] = $userData;
-        $_SESSION['role'] = 'User'; // Set the role here
-        $message = "<div class='alert alert-info'>User login successful</div>";
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $_SESSION['username'] = $username;
+            $_SESSION['nama'] = $row['nama'];
+            $_SESSION['isAdmin'] = $row['admin'] == 1;
+        }
+
+        if ($_SESSION['isAdmin']) {
+            $_SESSION['role'] = 'Admin'; // Set the role here
+            $message = "<div class='alert alert-info'>Admin login successful</div>";
+        } else {
+            $_SESSION['role'] = 'User'; // Set the role here
+            $message = "<div class='alert alert-info'>User login successful</div>";
+        }
         echo "<meta http-equiv='refresh' content='1;url=index.php'>";
     } else {
-        $message = "<div class='alert alert-danger rounded'>$message Login failed</div>";
+        $message = "<div class='alert alert-danger rounded'>Login failed</div>";
         echo "<script>
             setTimeout(function(){
                 document.querySelector('.alert-danger').style.display = 'none';
             }, 3000);
         </script>";
     }
+
+    $stmt->close();
 }
+
 ?>
 
 
