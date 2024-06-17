@@ -11,30 +11,39 @@ $message = "";
 
 if (isset($_POST['login'])) {
     $username = $_POST['user'];
-    $password = $_POST['pass'];
-
-    $stmt = $koneksi->prepare("SELECT * FROM USER WHERE username= ? AND password= ?");
-    $stmt->bind_param("ss", $username, $password);
-
+    // Fetch only the hashed password from the database based on username
+    $stmt = $koneksi->prepare("SELECT password, nama, admin FROM USER WHERE username= ?");
+    $stmt->bind_param("s", $username);
     $stmt->execute();
-
     $result = $stmt->get_result();
+
     if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
+        $row = $result->fetch_assoc();
+        // Use password_verify to check the hashed password
+        if (password_verify($_POST['pass'], $row['password'])) {
             $_SESSION['username'] = $username;
             $_SESSION['nama'] = $row['nama'];
             $_SESSION['isAdmin'] = $row['admin'] == 1;
-        }
 
-        if ($_SESSION['isAdmin']) {
-            $_SESSION['role'] = 'Admin'; // Set the role here
-            $message = "<div class='alert alert-info'>Admin login successful</div>";
+            if ($_SESSION['isAdmin']) {
+                $_SESSION['role'] = 'Admin'; // Set the role here
+                $message = "<div class='alert alert-info'>Admin login successful</div>";
+            } else {
+                $_SESSION['role'] = 'User'; // Set the role here
+                $message = "<div class='alert alert-info'>User login successful</div>";
+            }
+            echo "<meta http-equiv='refresh' content='1;url=index.php'>";
         } else {
-            $_SESSION['role'] = 'User'; // Set the role here
-            $message = "<div class='alert alert-info'>User login successful</div>";
+            // Password does not match
+            $message = "<div class='alert alert-danger rounded'>Login failed</div>";
+            echo "<script>
+                setTimeout(function(){
+                    document.querySelector('.alert-danger').style.display = 'none';
+                }, 3000);
+            </script>";
         }
-        echo "<meta http-equiv='refresh' content='1;url=index.php'>";
     } else {
+        // No user found with that username
         $message = "<div class='alert alert-danger rounded'>Login failed</div>";
         echo "<script>
             setTimeout(function(){
@@ -109,9 +118,7 @@ if (isset($_POST['login'])) {
                         <a class="txt2" href="">Username / Password?</a>
                     </div>
                     <div class="text-center p-t-136">
-                      
-                           
-                           
+
                     </div>
 
                     <script src="./assets/vendor/jquery-3.2.1.min.js"></script>
@@ -123,8 +130,6 @@ if (isset($_POST['login'])) {
                         scale: 1.1
                     })
                     </script>
-                        </form>
-                    </div>
                 </form>
             </div>
         </div>

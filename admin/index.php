@@ -8,6 +8,26 @@ if (!isset($_SESSION['username'])) {
 
 $koneksi = new mysqli("localhost", "root", "", "farmasi");
 
+$adminUsername = 'admin';
+$adminPassword = password_hash('admin', PASSWORD_DEFAULT); // Hashing the password
+$adminName = 'Admin';
+$adminRole = '1';
+
+// Check if the admin already exists
+$checkAdmin = $koneksi->prepare("SELECT * FROM user WHERE username = ?");
+$checkAdmin->bind_param("s", $adminUsername);
+$checkAdmin->execute();
+$result = $checkAdmin->get_result();
+
+if ($result->num_rows == 0) {
+    // Admin doesn't exist, so create it
+    $insertAdmin = $koneksi->prepare("INSERT INTO user (username, nama, password, admin) VALUES (?, ?, ?, ?)");
+    $insertAdmin->bind_param("ssss", $adminUsername,  $adminName, $adminPassword, $adminRole);
+    $insertAdmin->execute();
+}
+
+$checkAdmin->close();
+
 // Check if logged in user is an admin
 if (isset($_SESSION['isAdmin'])) {
     if ($_SESSION['isAdmin']) {
