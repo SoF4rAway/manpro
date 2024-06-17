@@ -1,9 +1,13 @@
-<h2>Tambah Pelanggan</h2>
+<h2>Tambah Pengguna</h2>
 
 <form method="post" enctype="multipart/form-data">
     <div class="form-group">
-        <label>Nama</label>
+        <label>Nama Lengkap</label>
         <input type="text" class="form-control" name="nama">
+    </div>
+    <div class="form-group">
+        <label>Username</label>
+        <input type="text" class="form-control" name="username">
     </div>
     <div class="form-group">
         <label>Telepon</label>
@@ -26,11 +30,9 @@
 <?php
 if (isset($_POST['save'])) {
     $nama = $_POST['nama'];
+    $username = $_POST['username'];
     $telepon = $_POST['telepon'];
     $status = $_POST['status'];
-
-    // Generate a random ID
-    $randomId = uniqid();
 
     // Validate the inputs (you can add more validation if needed)
     if (empty($nama) || empty($telepon) || empty($status)) {
@@ -43,17 +45,19 @@ if (isset($_POST['save'])) {
             die("Connection failed: " . $koneksi->connect_error);
         }
 
+        $stmt = $koneksi->prepare("INSERT INTO user (username, nama, password ,telepon, admin) VALUES(?, ?, ?, ?, ?)");
+
         // Use prepared statements to prevent SQL injection
         if ($status === 'admin') {
-            $stmt = $koneksi->prepare("INSERT INTO admin (id_admin, nama, telepon, password) VALUES (?, ?, ?, ?)");
+            $role = 1;
         } else {
-            $stmt = $koneksi->prepare("INSERT INTO user (id_user, nama, telepon, password) VALUES (?, ?, ?, ?)");
+            $role = 0;;
         }
 
         // Hash the password before storing it in the database
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-        $stmt->bind_param('ssss', $randomId, $nama, $telepon, $password);
+        $stmt->bind_param('sssss', $username, $nama, $password, $telepon, $role);
         $stmt->execute();
         $stmt->close();
 

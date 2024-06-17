@@ -76,45 +76,19 @@ $userId = $_SESSION['user_id'] ?? '';
     <?php $nomor = 1; ?>
 
     <?php
-    // Query to retrieve admin data
-    $adminQuery = $koneksi->query("SELECT id_admin as id, nama as nama, telepon as telepon, 'Admin' as status FROM admin");
-    while ($admin = $adminQuery->fetch_assoc()) {
-    ?>
+    // Combined query to retrieve both admin and user data
+    $userQuery = $koneksi->query("SELECT uid, nama, telepon, admin FROM user");
+    while ($user = $userQuery->fetch_assoc()) {
+        $status = ($user['admin'] == 1) ? 'Admin' : 'User';
+        ?>
         <div class="card">
             <div class="card-body">
-                <div class="product-name">Nama : <?php echo $admin['nama']; ?></div>
-                <div class="product-quantity">Telepon : <?php echo $admin['telepon']; ?></div>
-                <div class="product-price">Status : <?php echo $admin['status']; ?></div>
-                <?php if ($userRole === 'Admin') : ?>
+                <div class="product-name">Nama : <?php echo $user['nama']; ?></div>
+                <div class="product-quantity">Telepon : <?php echo $user['telepon']; ?></div>
+                <div class="product-price">Status : <?php echo $status; ?></div>
+                <?php if ($_SESSION['role'] === 'Admin') : ?>
                     <div class="text-right">
-                        <a href="index.php?halaman=ubahadmin&id=<?php echo $admin['id']; ?>" class="btn btn-warning">Ubah</a>
-                    </div>
-                <?php elseif ($userRole === 'User') : ?>
-                    <div class="text-right">
-                        <a href="#" class="btn btn-warning disabled">Ubah</a>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-        <?php $nomor++; ?>
-    <?php } ?>
-     <?php
-    // Query to retrieve admin data
-    $adminQuery = $koneksi->query("SELECT id_user as id, nama as nama, telepon as telepon, 'User' as status FROM user");
-    while ($admin = $adminQuery->fetch_assoc()) {
-    ?>
-        <div class="card">
-            <div class="card-body">
-                <div class="product-name">Nama : <?php echo $admin['nama']; ?></div>
-                <div class="product-quantity">Telepon : <?php echo $admin['telepon']; ?></div>
-                <div class="product-price">Status : <?php echo $admin['status']; ?></div>
-                <?php if ($userRole === 'Admin') : ?>
-                    <div class="text-right">
-                        <a href="index.php?halaman=ubahadmin&id=<?php echo $admin['id']; ?>" class="btn btn-warning">Ubah</a>
-                    </div>
-                <?php elseif ($userRole === 'User') : ?>
-                    <div class="text-right">
-                        <a href="#" class="btn btn-warning disabled">Ubah</a>
+                        <a href="index.php?halaman=ubahadmin&id=<?php echo $user['uid']; ?>" class="btn btn-warning">Ubah</a>
                     </div>
                 <?php endif; ?>
             </div>
@@ -123,8 +97,7 @@ $userId = $_SESSION['user_id'] ?? '';
     <?php } ?>
 </div>
 
+
 <?php if ($userRole === 'Admin') : ?>
     <a href="index.php?halaman=tambahadmin" class="btn btn-warning">Tambah Admin atau Pegawai</a>
-<?php elseif ($userRole === 'User') : ?>
-    <button class="btn btn-warning disabled">Tambah Admin atau Pegawai</button>
 <?php endif; ?>

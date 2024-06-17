@@ -5,13 +5,9 @@ if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
     // Query to retrieve data based on ID
-    $adminQuery = $koneksi->query("SELECT * FROM admin WHERE id_admin = $id");
-    $userQuery = $koneksi->query("SELECT * FROM user WHERE id_user = $id");
+    $userQuery = $koneksi->query("SELECT * FROM user WHERE uid = $id");
 
-    if ($adminQuery->num_rows > 0) {
-        $data = $adminQuery->fetch_assoc();
-        $tableName = 'admin';
-    } elseif ($userQuery->num_rows > 0) {
+    if ($userQuery->num_rows > 0) {
         $data = $userQuery->fetch_assoc();
         $tableName = 'user';
     } else {
@@ -43,11 +39,11 @@ if (isset($_GET['id'])) {
     if (isset($_POST['update'])) {
         $nama = $_POST['nama'];
         $telepon = $_POST['telepon'];
-        $password = $_POST['password'];
+        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
         // Validate and update data in the database
         // Use prepared statements to prevent SQL injection
-        $stmt = $koneksi->prepare("UPDATE $tableName SET nama = ?, telepon = ?, password = ? WHERE id_$tableName = ?");
+        $stmt = $koneksi->prepare("UPDATE $tableName SET nama = ?, telepon = ?, password = ? WHERE uid = ?");
         $stmt->bind_param('ssss', $nama, $telepon, $password, $id);
         $stmt->execute();
         $stmt->close();
