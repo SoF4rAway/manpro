@@ -1,15 +1,15 @@
 <?php
-session_start();
+
 if (!isset($_SESSION['username'])) {
     echo "<script>alert('Anda belum login, silahkan login terlebih dahulu.'); window.location.href = 'login.php';</script>";
     exit();
 }
 
-$koneksi = new mysqli("localhost", "root", "", "farmasi");
-
 $userRole = $_SESSION['role'] ?? '';
 $userId = $_SESSION['user_id'] ?? '';
 ?>
+
+<?=template_header($userName,$date )?>
 
 <h4>Anda adalah : <?php echo ($userRole === 'User') ? 'Pegawai' : $userRole; ?></h4>
 
