@@ -1,6 +1,11 @@
     <h2>Detail Obat</h2>
     <?php
 
+    if (!isset($_SESSION['username'])) {
+        echo "<script>alert('Anda belum login, silahkan login terlebih dahulu.'); window.location.href = 'login.php';</script>";
+        exit();
+    }
+
     $ambil = $koneksi->query("SELECT * FROM obat WHERE id_obat='$_GET[id]'");
     $detail = $ambil->fetch_assoc();
     ?>

@@ -28,6 +28,12 @@
 </form>
 
 <?php
+
+if (!isset($_SESSION['username'])) {
+    echo "<script>alert('Anda belum login, silahkan login terlebih dahulu.'); window.location.href = 'login.php';</script>";
+    exit();
+}
+
 if (isset($_POST['save'])) {
     $nama = $_POST['nama'];
     $username = $_POST['username'];

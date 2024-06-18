@@ -1,4 +1,5 @@
 <?php
+session_start();
 // Include your database connection code here
 
 // Assuming you have a function to connect to the database

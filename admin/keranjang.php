@@ -15,8 +15,12 @@
 </style>
 
 <?php
+template_header($userName,$date);
 
-$koneksi = new mysqli("localhost", "root", "", "farmasi");
+if (!isset($_SESSION['username'])) {
+    echo "<script>alert('Anda belum login, silahkan login terlebih dahulu.'); window.location.href = 'login.php';</script>";
+    exit();
+}
 
 // Check if form is submitted for quantity adjustment
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['quantity_adjust'])) {
@@ -30,12 +34,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['quantity_adjust'])) {
 }
 
 // Fetch data from the obat table
-$query = "SELECT * FROM obat";
-$result = mysqli_query($koneksi, $query);
+$stmt = $koneksi->prepare("SELECT * FROM obat");
+$stmt->execute();
+$result = $stmt->get_result();
 
 // Display the contents of the shopping cart
 echo "<h2>Keranjang </h2>";
-echo "<form method='post' action='keranjang.php'>"; // Form for quantity adjustment
+echo "<form method='post' action='index.php?page=keranjang' style='margin-top: 20px;'>";
+ // Form for quantity adjustment
 echo "<table style='border-collapse: collapse; width: 100%; margin-top: 20px;'>
         <tr>
             <th style='border: 1px solid #dddddd; text-align: left; padding: 8px;'>ID Obat</th>
@@ -50,7 +56,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     $id_obat = $row['id_obat'];
     $quantity = isset($_SESSION['keranjang'][$id_obat]['quantity']) ? $_SESSION['keranjang'][$id_obat]['quantity'] : 0;
     $harga = $row['harga'];
-    $subTotal = $harga * $quantity; 
+    $subTotal = $harga * $quantity;
 
     echo "<tr>
             <td style='border: 1px solid #dddddd; text-align: left; padding: 8px;'>{$row['id_obat']}</td>
@@ -67,15 +73,17 @@ while ($row = mysqli_fetch_assoc($result)) {
 
 echo "</table>";
 
+echo "<h3>Total Harga: Rp" . number_format($totalHarga, 0, ',', '.') . "</h3>"; // Display total price
 
-
+echo "<button type='submit' class='btn-primary' style='padding: 10px; cursor: pointer;'>Update Keranjang</button>";
+echo "</form>"; // Close form for quantity adjustment
 
 // Checkout button with the primary styles
-echo '<form action="checkout.php" method="post" style="margin-top: 10px;">
+echo '<form action="index.php?page=checkout" method="post" style="margin-top: 10px;">
         <input type="hidden" name="total_harga" value="' . $totalHarga . '">
         <button type="submit" class="btn-primary" style="padding: 10px; cursor: pointer;">Checkout</button>
       </form>';
 
-// Close the database connection
-mysqli_close($koneksi);
+// Close the prepared statement
+$stmt->close();
 ?>

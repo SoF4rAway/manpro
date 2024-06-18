@@ -1,6 +1,11 @@
 <?php
 $koneksi = new mysqli("localhost", "root", "", "farmasi");
 
+if (!isset($_SESSION['username'])) {
+    echo "<script>alert('Anda belum login, silahkan login terlebih dahulu.'); window.location.href = 'login.php';</script>";
+    exit();
+}
+
 if ($koneksi->connect_error) {
     die("Connection failed: " . $koneksi->connect_error);
 }

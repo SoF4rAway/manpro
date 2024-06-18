@@ -1,3 +1,11 @@
+<?php
+$stmt = $koneksi->prepare("SELECT * FROM pembelian ORDER BY tanggal_pembelian DESC");
+$stmt->execute();
+$ambil = $stmt->get_result();
+?>
+
+<?=template_header($userName,$date)?>
+
 <h2>Data Pembelian</h2>
 
 <table class="table table-bordered">
@@ -12,8 +20,13 @@
     </thead>
     <tbody>
         <?php
+
+        if (!isset($_SESSION['username'])) {
+            echo "<script>alert('Anda belum login, silahkan login terlebih dahulu.'); window.location.href = 'index.php?page=login';</script>";
+            exit();
+        }
+
         $nomor = 1;
-        $ambil = $koneksi->query("SELECT * FROM pembelian ORDER BY tanggal_pembelian DESC");
 
         while ($pecah = $ambil->fetch_assoc()) {
         ?>
@@ -23,7 +36,7 @@
                 <td><?php echo $pecah['tanggal_pembelian']; ?></td>
                 <td><?php echo $pecah['total_pembelian']; ?></td>
                 <td>
-                    <a href="index.php?halaman=detailpenjualan&id=<?php echo $pecah['id_pembelian']; ?>" class="btn btn-info">Detail</a>
+                    <a href="index.php?page=detailpenjualan&id=<?php echo $pecah['id_pembelian']; ?>" class="btn btn-info">Detail</a>
                 </td>
             </tr>
         <?php

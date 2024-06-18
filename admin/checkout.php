@@ -1,37 +1,40 @@
 <?php
-session_start(); 
+session_start();
+
+if (!isset($_SESSION['username'])) {
+    echo "<script>alert('Anda belum login, silahkan login terlebih dahulu.'); window.location.href = 'login.php';</script>";
+    exit();
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $koneksi = new mysqli("localhost", "root", "", "farmasi");
-
-    if ($koneksi->connect_error) {
-        die("Connection failed: " . $koneksi->connect_error);
-    }
-
     try {
         $koneksi->begin_transaction();
 
         $totalHarga = $_POST['total_harga'];
         $tanggal_pembelian = date('Y-m-d');
 
-        $insertPembelian = $koneksi->prepare("INSERT INTO pembelian (tanggal_pembelian, total_pembelian) VALUES (?, ?)");
-        $insertPembelian->bind_param("sd", $tanggal_pembelian, $totalHarga);
-        $insertPembelian->execute();
+        // Use $stmt for the prepared statement
+        $stmt = $koneksi->prepare("INSERT INTO pembelian (tanggal_pembelian, total_pembelian) VALUES (?, ?)");
+        $stmt->bind_param("sd", $tanggal_pembelian, $totalHarga);
+        $stmt->execute();
 
         $id_pembelian = $koneksi->insert_id;
         $total_pembelian = 0;
 
-        if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+        if (!empty($_SESSION['cart'])) {
             foreach ($_SESSION['cart'] as $id_obat => $product) {
-                $jumlah_obat = 1; 
+                $jumlah_obat = 1;
                 $tanggal_penjualan = $tanggal_pembelian;
 
-                $insertPenjualan = $koneksi->prepare("INSERT INTO penjualan (jumlah_obat, tanggal, id_obat, id_pembelian) VALUES (?, ?, ?, ?)");
-                $insertPenjualan->bind_param("issi", $jumlah_obat, $tanggal_penjualan, $id_obat, $id_pembelian);
-                $insertPenjualan->execute();
+                // Reuse $stmt for a new prepared statement
+                $stmt = $koneksi->prepare("INSERT INTO penjualan (jumlah_obat, tanggal, id_obat, id_pembelian) VALUES (?, ?, ?, ?)");
+                $stmt->bind_param("issi", $jumlah_obat, $tanggal_penjualan, $id_obat, $id_pembelian);
+                $stmt->execute();
 
-                $updateStokObat = $koneksi->prepare("UPDATE obat SET stok = stok - ? WHERE id_obat = ?");
-                $updateStokObat->bind_param("ii", $jumlah_obat, $id_obat);
-                $updateStokObat->execute();
+                // Reuse $stmt again for another prepared statement
+                $stmt = $koneksi->prepare("UPDATE obat SET stok = stok - ? WHERE id_obat = ?");
+                $stmt->bind_param("ii", $jumlah_obat, $id_obat);
+                $stmt->execute();
 
                 $total_pembelian += $product['harga'] * $jumlah_obat;
             }
@@ -39,25 +42,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['cart'] = array();
         }
 
-        $updateTotalPembelian = $koneksi->prepare("UPDATE pembelian SET total_pembelian = ? WHERE id_pembelian = ?");
-        $updateTotalPembelian->bind_param("di", $total_pembelian, $id_pembelian);
-        $updateTotalPembelian->execute();
+        // Reuse $stmt once more for the final prepared statement
+        $stmt = $koneksi->prepare("UPDATE pembelian SET total_pembelian = ? WHERE id_pembelian = ?");
+        $stmt->bind_param("di", $total_pembelian, $id_pembelian);
+        $stmt->execute();
 
+        // Commit the transaction
         $koneksi->commit();
 
+        // Output success message and order details
         echo "<p>Checkout successful. Your order has been processed. Thank you for shopping!</p>";
         echo "<p>Order details:</p>";
-        echo "<p>ID Pembelian: $id_pembelian</p>";
-        echo "<p>Tanggal Pembelian: $tanggal_pembelian</p>";
+        echo "<p>ID Pembelian: {$id_pembelian}</p>";
+        echo "<p>Tanggal Pembelian: {$tanggal_pembelian}</p>";
         echo "<p>Total Harga: Rp" . number_format($totalHarga, 0, ',', '.') . "</p>";
     } catch (Exception $e) {
+        // Rollback the transaction in case of error
         $koneksi->rollback();
         echo "Error: " . $e->getMessage();
-    } finally {
-        $koneksi->close();
     }
-} else {
-    header("Location: keranjang.php");
-    exit();
 }
 ?>
