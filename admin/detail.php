@@ -1,126 +1,95 @@
-    <h2>Detail Obat</h2>
-    <?php
+<?php
 
-    if (!isset($_SESSION['username'])) {
-        echo "<script>alert('Anda belum login, silahkan login terlebih dahulu.'); window.location.href = 'login.php';</script>";
-        exit();
+/*if (!isset($_SESSION['username'])) {
+    echo "<script>alert('Anda belum login, silahkan login terlebih dahulu.'); window.location.href = 'login.php';</script>";
+    exit();
+}*/
+
+// Check to make sure the id parameter is specified in the URL
+if (isset($_GET['id'])) {
+    // Prepare statement and execute, prevents SQL injection
+    $stmt = $koneksi->prepare('SELECT * FROM obat WHERE id_obat = ?');
+    $stmt->bind_param('i', $_GET['id']);
+    $stmt->execute();
+    // Store the result so we can check if the record exists in the database
+    $result = $stmt->get_result();
+
+    // Fetch the product from the database and return the result as an Array
+    $product = $result->fetch_assoc();
+
+    // Check if the product exists (array is not empty)
+    if (!$product) {
+        // Product doesn't exist
+        echo "<script>alert('Product does not exist!'); window.location.href = 'index.php';</script>";
+        exit;
     }
 
-    $ambil = $koneksi->query("SELECT * FROM obat WHERE id_obat='$_GET[id]'");
-    $detail = $ambil->fetch_assoc();
-    ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body, html {
-            width: 100%;
-            margin: 0;
-            padding: 0;
-        }
+    // Close the statement when done
+    $stmt->close();
+} else {
+    // ID parameter was not specified
+    echo "<script>alert('Product does not exist!'); window.location.href = 'index.php';</script>";
+    exit;
+}
+?>
 
-        .card {
-            display: flex;
-            border: 1px solid #ddd;
-            border-radius: 30px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            background-color: rgba(69, 65, 76, 0.2);
-        }
-
-        .card-title,
-        .card-text,
-        .btn-danger,
-        .btn-warning {
-            font-family: 'Arial', sans-serif;
-            font-size: 18px;
-        }
-
-        .card img {
-            width: 400px;   
-            object-fit: contain;
-            padding: 10px;
-            margin-left: 30px;
-        }
-
-        .card-body {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: flex-start;
-            padding: 50px;
-        }
-
-        .label {
-            width: 150px;
-            text-align: left;
-            margin-right: 20px;
-            color: black;
-            display: inline-block;
-        }
-
-        .data {
-            display: inline-block;
-        }
-        
-        .btn-primary {
+<?=template_header($userName, $date)?>
+<style>
+    .btn-primary {
         color: white;
         background-color: red;
         border: 1px solid red;
-        border-radius: 20px; 
+        border-radius: 5px;
         transition: background-color 0.3s, color 0.3s, border-color 0.3s, border-radius 0.3s;
     }
 
     .btn-primary:hover {
         color: white;
         background-color: darkred;
-        border-color: darkred; 
-        border-radius: 20px; 
-       
+        border-color: darkred;
+        border-radius: 5px;
+
     }
+    .price {
+        display: block;
+        font-size: 22px;
+        color: #999999;
+    }
+</style>
 
-    </style>
-</head>
-<body>
-    <div class="card">
-        <?php
-            $imagePath = '../foto_produk/' . $detail['foto_obat'];
-        ?>
-        <img src="<?php echo $imagePath; ?>" alt="Obat Image">
-        <div class="card-body">
-            <h5 class="card-title product-name">
-                <span class="label">ID</span> <span class="data"><?php echo $detail['id_obat']; ?></span>
-            </h5>
-            <p class="card-text">
-                <span class="label">Nama Produk</span> <span class="data"><?php echo $detail['nama_obat']; ?></span>
-            </p>
-            <p class="card-text">
-                <span class="label">Harga</span> <span class="data">Rp<?php echo number_format($detail['harga'], 0, ',', '.'); ?></span>
-            </p>
-            <p class="card-text">
-                <span class="label">Stok</span> <span class="data"><?php echo $detail['stok']; ?></span>
-            </p>
-             <p class="card-text">
-                <span class="label">Tanggal Expire</span> <span class="data"><?php echo $detail['expired']; ?></span>
-            </p>
-           
-             <?php
-                $deskripsi = $detail['deskripsi'];
-                if (!empty($deskripsi)) {
-                    echo '<p class="card-text" style="text-align: justify;"><span class="label">Deskripsi</span> <span class="data">' . $deskripsi . '</span></p>';
-                }
-            ?>
+
+<div class="container " style="width: 75vw; padding-top: 5vh">
+    <div class="row text-justify">
+        <!-- Column for the image -->
+        <div class="col-md-6">
+            <img src="../foto_produk/<?=$product['foto_obat']?>" class="img-thumbnail" alt="<?=$product['nama_obat']?>">
         </div>
-
+        <!-- Column for the product name, description, price, etc. -->
+        <div class="col-md-6">
+            <h1 class="name"><?=$product['nama_obat']?></h1>
+            <span class="price">
+                Rp<?=$product['harga']?>
+            </span>
+            <form action="index.php?page=keranjang" method="post" style="padding-top: 10px; padding-bottom: 10px">
+                <input type="number" name="quantity" value="1" min="1" max="<?=$product['stok']?>" placeholder="Quantity" required>
+                <input type="hidden" name="product_id" value="<?=$product['id_obat']?>">
+                <input type="submit" value="Add To Cart" class="btn-primary">
+            </form>
+            <div class="description">
+                <?=$product['deskripsi']?>
+            </div>
+        </div>
     </div>
-    <a href="index.php?halaman=ubahproduk&id=<?php echo $detail['id_obat']; ?>" class="btn btn-primary">Edit</a>
-    </form>
-</body>
-</html>
-
+    <div style="padding-top: 50px">
+        <div class="row">
+            <div class="col-md-2">
+                <a href="index.php" class="btn btn-primary">Return to Home Page</a>
+            </div>
+            <div class="col-md-10 text-left">
+                <a href="index.php?page=ubahproduk&id=<?=$product['id_obat']?>" class="btn btn-primary">Edit Detail</a>
+            </div>
+        </div>
+    </div>
+</div>
 
 
