@@ -6,7 +6,7 @@ if (isset($_POST['id_obat'], $_POST['quantity']) && is_numeric($_POST['id_obat']
     $quantity = (int)$_POST['quantity'];
     // Prepare the SQL statement, we basically are checking if the product exists in our databaser
     $stmt = $koneksi->prepare('SELECT * FROM obat WHERE id_obat = ?');
-    $stmt->bind_param('i', $_GET['id_obat']);
+    $stmt->bind_param('i', $product_id);
     $stmt->execute();
     // Store the result so we can check if the record exists in the database
     $result = $stmt->get_result();
@@ -14,7 +14,7 @@ if (isset($_POST['id_obat'], $_POST['quantity']) && is_numeric($_POST['id_obat']
     // Fetch the product from the database and return the result as an Array
     $product = $result->fetch_assoc();
     // Check if the product exists (array is not empty)
-    if ($product && $quantity > 0) {
+    if ($product > 0) {
         // Product exists in database, now we can create/update the session variable for the cart
         if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
             if (array_key_exists($product_id, $_SESSION['cart'])) {
@@ -34,11 +34,16 @@ if (isset($_POST['id_obat'], $_POST['quantity']) && is_numeric($_POST['id_obat']
     exit;
 }
 
-// Remove product from cart, check for the URL param "remove", this is the product id, make sure it's a number and check if it's in the cart
-if (isset($_SESSION['cart'][$_GET['remove']]) && isset($_GET['remove']) && is_numeric($_GET['remove'])) {
-    // Remove the product from the shopping cart
-    unset($_SESSION['cart'][$_GET['remove']]);
+// Check for the URL param "remove", make sure it's a number
+if (isset($_GET['remove']) && is_numeric($_GET['remove'])) {
+    // Check if it's in the cart
+    if (isset($_SESSION['cart'][$_GET['remove']])) {
+        // Remove the product from the shopping cart
+        unset($_SESSION['cart'][$_GET['remove']]);
+        header('Location: index.php?page=keranjang');
+    }
 }
+
 
 // Update product quantities in cart if the user clicks the "Update" button on the shopping cart page
 if (isset($_POST['update']) && isset($_SESSION['cart'])) {
@@ -59,13 +64,13 @@ if (isset($_POST['update']) && isset($_SESSION['cart'])) {
     exit;
 }
 
-if (isset($_POST['placeorder']) && isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+if (isset($_POST['placeorder']) && !empty($_SESSION['cart'])) {
     header('Location: index.php?page=checkout');
     exit;
 }
 
 // Check the session variable for products in cart
-$products_in_cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : array();
+$products_in_cart = $_SESSION['cart'] ?? array();
 $products = array();
 $subtotal = 0.00;
 
@@ -148,15 +153,15 @@ if ($products_in_cart) {
                             </a>
                         </td>
                         <td>
-                            <a href="index.php?page=product&id=<?=$product['id_obat']?>"><?=$product['nama_obat']?></a>
+                            <a href="index.php?page=detail&id=<?=$product['id_obat']?>"><?=$product['nama_obat']?></a>
                             <br>
-                            <a href="index.php?page=cart&remove=<?=$product['id_obat']?>" class="remove">Remove</a>
+                            <a href="index.php?page=keranjang&remove=<?=$product['id_obat']?>" class="remove">Remove</a>
                         </td>
                         <td class="price">Rp;<?=$product['harga']?></td>
                         <td class="quantity">
                             <input type="number" name="quantity-<?=$product['id_obat']?>" value="<?=$products_in_cart[$product['id_obat']]?>" min="1" max="<?=$product['stok']?>" placeholder="Quantity" required>
                         </td>
-                        <td class="price">&Rp;<?=$product['harga'] * $products_in_cart[$product['id_obat']]?></td>
+                        <td class="price">Rp;<?=$product['harga'] * $products_in_cart[$product['id_obat']]?></td>
                     </tr>
                 <?php endforeach; ?>
             <?php endif; ?>

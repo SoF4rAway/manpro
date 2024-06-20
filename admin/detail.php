@@ -72,7 +72,7 @@ if (isset($_GET['id'])) {
             </span>
             <form action="index.php?page=keranjang" method="post" style="padding-top: 10px; padding-bottom: 10px">
                 <input type="number" name="quantity" value="1" min="1" max="<?=$product['stok']?>" placeholder="Quantity" required>
-                <input type="hidden" name="product_id" value="<?=$product['id_obat']?>">
+                <input type="hidden" name="id_obat" value="<?=$product['id_obat']?>">
                 <input type="submit" value="Add To Cart" class="btn-primary">
             </form>
             <div class="description">
