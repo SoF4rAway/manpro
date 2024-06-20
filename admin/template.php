@@ -57,7 +57,7 @@ function template_header($userName, $date){
         .date-display {
             position: absolute;
             top: 15px;
-            left: 90vw;
+            left: 1100px;
             font-size: 20px;
             color: #FFF;
         }

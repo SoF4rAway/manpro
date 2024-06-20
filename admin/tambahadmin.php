@@ -1,4 +1,6 @@
+<?=template_header($userName,$date )?>
 <h2>Tambah Pengguna</h2>
+
 
 <form method="post" enctype="multipart/form-data">
     <div class="form-group">
