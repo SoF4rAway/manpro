@@ -46,7 +46,7 @@ function template_header($userName, $date){
     <link href="assets/css/custom.css" rel="stylesheet" />
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
     <link rel="Stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="icon" type="image/x-icon" href="assets/favi.ico" />
+    <link rel="icon" type="image/x-icon" href="assets/logo_apoteker.png" />
     <style>
         .navbar {
             background-color: #FF2400;
@@ -55,9 +55,10 @@ function template_header($userName, $date){
             margin-bottom: 0; 
 }
         .date-display {
+            float: right;
             position: absolute;
             top: 15px;
-            left: 1100px;
+            right: 15px;
             font-size: 20px;
             color: #FFF;
         }
@@ -80,7 +81,7 @@ function template_header($userName, $date){
                     <span class="sr-only">Toggle navigation</span>
                 </button>
                 <h3 class="date-display">$date</h3>
-                </div>
+            </div>
         </nav>
         <nav class="navbar-default navbar-side" role="navigation">
             <div class="sidebar-collapse">

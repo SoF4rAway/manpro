@@ -105,5 +105,5 @@ $userId = $_SESSION['user_id'] ?? '';
 
 
 <?php if ($userRole === 'Admin') : ?>
-    <a href="index.php?halaman=tambahadmin" class="btn btn-warning">Tambah Admin atau Pegawai</a>
+    <a href="index.php?page=tambahadmin" class="btn btn-warning">Tambah Admin atau Pegawai</a>
 <?php endif; ?>
