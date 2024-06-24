@@ -1,5 +1,11 @@
+<?=template_header($userName, $date)?>
+
+<div class="placeorder content-wrapper">
+    <h1>Your Order Has Been Placed</h1>
+    <p>Thank you for ordering with us! We'll contact you by email with your order details.</p>
+</div>
+
 <?php
-session_start();
 
 if (!isset($_SESSION['username'])) {
     echo "<script>alert('Anda belum login, silahkan login terlebih dahulu.'); window.location.href = 'login.php';</script>";
@@ -10,10 +16,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         $koneksi->begin_transaction();
 
-        $totalHarga = $_POST['total_harga'];
+        // Retrieve the subtotal from the form (assuming it's posted as 'subtotal')
+        $totalHarga = floatval($_POST['subtotal']);
         $tanggal_pembelian = date('Y-m-d');
 
-        // Use $stmt for the prepared statement
+        // Insert into 'pembelian' table
         $stmt = $koneksi->prepare("INSERT INTO pembelian (tanggal_pembelian, total_pembelian) VALUES (?, ?)");
         $stmt->bind_param("sd", $tanggal_pembelian, $totalHarga);
         $stmt->execute();
@@ -26,12 +33,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $jumlah_obat = 1;
                 $tanggal_penjualan = $tanggal_pembelian;
 
-                // Reuse $stmt for a new prepared statement
+                // Insert into 'penjualan' table
                 $stmt = $koneksi->prepare("INSERT INTO penjualan (jumlah_obat, tanggal, id_obat, id_pembelian) VALUES (?, ?, ?, ?)");
                 $stmt->bind_param("issi", $jumlah_obat, $tanggal_penjualan, $id_obat, $id_pembelian);
                 $stmt->execute();
 
-                // Reuse $stmt again for another prepared statement
+                // Update stock in 'obat' table
                 $stmt = $koneksi->prepare("UPDATE obat SET stok = stok - ? WHERE id_obat = ?");
                 $stmt->bind_param("ii", $jumlah_obat, $id_obat);
                 $stmt->execute();
@@ -39,10 +46,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $total_pembelian += $product['harga'] * $jumlah_obat;
             }
 
+            // Clear the cart
             $_SESSION['cart'] = array();
         }
 
-        // Reuse $stmt once more for the final prepared statement
+        // Update total_pembelian in 'pembelian' table
         $stmt = $koneksi->prepare("UPDATE pembelian SET total_pembelian = ? WHERE id_pembelian = ?");
         $stmt->bind_param("di", $total_pembelian, $id_pembelian);
         $stmt->execute();

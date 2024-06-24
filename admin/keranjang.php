@@ -65,7 +65,7 @@ if (isset($_POST['update']) && isset($_SESSION['cart'])) {
 }
 
 if (isset($_POST['placeorder']) && !empty($_SESSION['cart'])) {
-    header('Location: index.php?page=checkout');
+    header('Location: index.php?page=checkout&subtotal=' . urlencode($subtotal));
     exit;
 }
 
@@ -129,7 +129,7 @@ if ($products_in_cart) {
 
 <div class="cart content-wrapper">
     <h1>Shopping Cart</h1>
-    <form action="index.php?page=cart" method="post">
+    <form action="index.php?page=keranjang" method="post">
         <table>
             <thead>
             <tr>
@@ -169,7 +169,7 @@ if ($products_in_cart) {
         </table>
         <div class="subtotal">
             <span class="text">Subtotal</span>
-            <span class="price">Rp;<?=$subtotal?></span>
+            <span class="price">Rp. <?=$_SESSION['subtotal']?></span>
         </div>
         <div class="buttons">
             <input type="submit" value="Update" name="update">

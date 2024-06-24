@@ -1,24 +1,31 @@
 ﻿<?php
 session_start();
 
-$koneksi = new mysqli("localhost", "root", "", "farmasi");
+$DATABASE_HOST = "localhost";
+$DATABASE_USER = "root";
+$DATABASE_PASS = "";
+$DATABASE_NAME = "farmasi";
 
-if ($koneksi->connect_error) {
-    die("Connection failed: " . $koneksi->connect_error);
-}
+
+$dsn = "mysql:host=$DATABASE_HOST;dbname=$DATABASE_NAME";
+$koneksi = new PDO($dsn, $DATABASE_USER, $DATABASE_PASS);
+$koneksi->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
 
 $message = "";
 
 if (isset($_POST['login'])) {
     $username = $_POST['user'];
-    // Fetch only the hashed password from the database based on username
-    $stmt = $koneksi->prepare("SELECT password, nama, admin FROM USER WHERE username= ?");
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $result = $stmt->get_result();
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
+    // Prepare the query using placeholders
+    $stmt = $koneksi->prepare("SELECT password, nama, admin FROM USER WHERE username = :username");
+    $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+    $stmt->execute();
+
+    // Fetch the result
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
         // Use password_verify to check the hashed password
         if (password_verify($_POST['pass'], $row['password'])) {
             $_SESSION['username'] = $username;
@@ -52,7 +59,7 @@ if (isset($_POST['login'])) {
         </script>";
     }
 
-    $stmt->close();
+    $stmt->closeCursor();
 }
 
 ?>

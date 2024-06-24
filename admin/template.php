@@ -4,12 +4,17 @@ function db_conn(){
     $DATABASE_USER = "root";
     $DATABASE_PASS = "";
     $DATABASE_NAME = "farmasi";
-    try{
-        return new mysqli($DATABASE_HOST, $DATABASE_USER, $DATABASE_PASS, $DATABASE_NAME);
-    } catch (mysqli_sql_exception $e) {
+
+    try {
+        $dsn = "mysql:host=$DATABASE_HOST;dbname=$DATABASE_NAME";
+        $koneksi = new PDO($dsn, $DATABASE_USER, $DATABASE_PASS);
+        $koneksi->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return $koneksi;
+    } catch (PDOException $e) {
         exit($e->getMessage());
     }
 }
+
 
 function adminChecks(){
     global $koneksi;
