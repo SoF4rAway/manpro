@@ -1,38 +1,40 @@
 <?php
 // If the user clicked the add to cart button on the product page we can check for the form data
 if (isset($_POST['id_obat'], $_POST['quantity']) && is_numeric($_POST['id_obat']) && is_numeric($_POST['quantity'])) {
-    // Set the post variables so we easily identify them, also make sure they are integer
+    // Set the post variables so we can easily identify them; also ensure they are integers
     $product_id = (int)$_POST['id_obat'];
     $quantity = (int)$_POST['quantity'];
-    // Prepare the SQL statement, we basically are checking if the product exists in our databaser
-    $stmt = $koneksi->prepare('SELECT * FROM obat WHERE id_obat = ?');
-    $stmt->bind_param('i', $product_id);
-    $stmt->execute();
-    // Store the result so we can check if the record exists in the database
-    $result = $stmt->get_result();
 
-    // Fetch the product from the database and return the result as an Array
-    $product = $result->fetch_assoc();
+    // Prepare the SQL statement to check if the product exists in our database
+    $stmt = $koneksi->prepare('SELECT * FROM obat WHERE id_obat = :id');
+    $stmt->bindParam(':id', $product_id, PDO::PARAM_INT);
+    $stmt->execute();
+
+    // Fetch the product from the database
+    $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
     // Check if the product exists (array is not empty)
-    if ($product > 0) {
-        // Product exists in database, now we can create/update the session variable for the cart
+    if ($product) {
+        // Product exists in the database; create/update the session variable for the cart
         if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
             if (array_key_exists($product_id, $_SESSION['cart'])) {
-                // Product exists in cart so just update the quanity
+                // Product exists in the cart, so update the quantity
                 $_SESSION['cart'][$product_id] += $quantity;
             } else {
-                // Product is not in cart so add it
+                // Product is not in the cart, so add it
                 $_SESSION['cart'][$product_id] = $quantity;
             }
         } else {
-            // There are no products in cart, this will add the first product to cart
+            // No products in the cart; add the first product
             $_SESSION['cart'] = array($product_id => $quantity);
         }
     }
+
     // Prevent form resubmission...
     header('location: index.php?page=cart');
     exit;
 }
+
 
 // Check for the URL param "remove", make sure it's a number
 if (isset($_GET['remove']) && is_numeric($_GET['remove'])) {
@@ -64,11 +66,6 @@ if (isset($_POST['update']) && isset($_SESSION['cart'])) {
     exit;
 }
 
-if (isset($_POST['placeorder']) && !empty($_SESSION['cart'])) {
-    header('Location: index.php?page=checkout&subtotal=' . urlencode($subtotal));
-    exit;
-}
-
 // Check the session variable for products in cart
 $products_in_cart = $_SESSION['cart'] ?? array();
 $products = array();
@@ -79,7 +76,7 @@ if ($products_in_cart) {
     // Create a comma-separated list of product IDs for the query
     $product_ids = implode(',', array_keys($products_in_cart));
 
-    // Prepare the query using a placeholder for the product IDs
+    // Prepare the query using placeholders for the product IDs
     $query = 'SELECT * FROM obat WHERE id_obat IN (' . str_repeat('?,', count($products_in_cart) - 1) . '?)';
 
     // Prepare the statement
@@ -87,25 +84,23 @@ if ($products_in_cart) {
 
     // Bind the product IDs as parameters
     $param_types = str_repeat('i', count($products_in_cart)); // Assuming product IDs are integers
-    $stmt->bind_param($param_types, ...array_keys($products_in_cart));
-
-    // Execute the query
-    $stmt->execute();
+    $stmt->execute(array_keys($products_in_cart));
 
     // Get the result
-    $result = $stmt->get_result();
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Fetch the products from the result
-    while ($product = $result->fetch_assoc()) {
+    foreach ($result as $product) {
         $product_id = $product['id_obat'];
         $subtotal += (float)$product['harga'] * (int)$products_in_cart[$product_id];
         $products[] = $product;
     }
-
-    // Close the statement
-    $stmt->close();
 }
 
+if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
+    header('Location: index.php?page=checkout&subtotal=' . urlencode($subtotal));
+    exit;
+}
 
 ?>
 
@@ -169,11 +164,11 @@ if ($products_in_cart) {
         </table>
         <div class="subtotal">
             <span class="text">Subtotal</span>
-            <span class="price">Rp. <?=$_SESSION['subtotal']?></span>
+            <span class="price">Rp. <?=$subtotal?></span>
         </div>
         <div class="buttons">
             <input type="submit" value="Update" name="update">
-            <input type="submit" value="Place Order" name="placeorder">
+            <input type="submit" value="Place Order" name="checkout">
         </div>
     </form>
 </div>

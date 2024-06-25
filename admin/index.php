@@ -1,5 +1,9 @@
 ﻿<?php
 session_start();
+if (!$_SESSION['isLoggedIn']) {
+    echo "<script>alert('Anda belum login, silahkan login terlebih dahulu.'); window.location.href = 'login.php';</script>";
+    exit();
+}
 
 include 'template.php';
 $koneksi = db_conn();

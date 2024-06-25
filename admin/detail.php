@@ -8,14 +8,11 @@
 // Check to make sure the id parameter is specified in the URL
 if (isset($_GET['id'])) {
     // Prepare statement and execute, prevents SQL injection
-    $stmt = $koneksi->prepare('SELECT * FROM obat WHERE id_obat = ?');
-    $stmt->bind_param('i', $_GET['id']);
+    $stmt = $koneksi->prepare('SELECT * FROM obat WHERE id_obat = :id');
+    $stmt->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
     $stmt->execute();
     // Store the result so we can check if the record exists in the database
-    $result = $stmt->get_result();
-
-    // Fetch the product from the database and return the result as an Array
-    $product = $result->fetch_assoc();
+    $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // Check if the product exists (array is not empty)
     if (!$product) {
@@ -25,7 +22,7 @@ if (isset($_GET['id'])) {
     }
 
     // Close the statement when done
-    $stmt->close();
+    $stmt->closeCursor();
 } else {
     // ID parameter was not specified
     echo "<script>alert('Product does not exist!'); window.location.href = 'index.php';</script>";

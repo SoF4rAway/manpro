@@ -1,11 +1,10 @@
 <?php
+// Assuming you have already established a PDO connection ($koneksi)
 
 if (!isset($_SESSION['username'])) {
     echo "<script>alert('Anda belum login, silahkan login terlebih dahulu.'); window.location.href = 'login.php';</script>";
     exit();
 }
-
-$koneksi = new mysqli("localhost", "root", "", "farmasi");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nama_obat = $_POST["nama_obat"];
@@ -14,11 +13,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $foto_obat = $_FILES["foto_obat"]["name"];
     $foto_tmp = $_FILES["foto_obat"]["tmp_name"];
 
-   
     move_uploaded_file($foto_tmp, "../foto_produk/" . $foto_obat);
 
-    
-    $koneksi->query("INSERT INTO obat (nama_obat, stok, harga, foto_obat) VALUES ('$nama_obat', '$stok', '$harga', '$foto_obat')");
+    // Use prepared statements to insert data into the database
+    $stmt = $koneksi->prepare("INSERT INTO obat (nama_obat, stok, harga, foto_obat) VALUES (:nama_obat, :stok, :harga, :foto_obat)");
+    $stmt->bindParam(':nama_obat', $nama_obat);
+    $stmt->bindParam(':stok', $stok);
+    $stmt->bindParam(':harga', $harga);
+    $stmt->bindParam(':foto_obat', $foto_obat);
+    $stmt->execute();
 
     echo "<script>alert('Produk berhasil ditambahkan.'); window.location.href = 'index.php';</script>";
 }
