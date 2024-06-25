@@ -83,9 +83,13 @@ $userId = $_SESSION['user_id'] ?? '';
 
     <?php
     // Combined query to retrieve both admin and user data
-    $userQuery = $koneksi->query("SELECT uid, nama, telepon, admin FROM user");
-    while ($user = $userQuery->fetch_assoc()) {
+    $stmt = $koneksi->prepare("SELECT uid, nama, telepon, admin FROM user");
+    $stmt->execute();
+    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->closeCursor();
+    foreach ($data as $user) {
         $status = ($user['admin'] == 1) ? 'Admin' : 'User';
+
         ?>
         <div class="card">
             <div class="card-body">
@@ -94,7 +98,7 @@ $userId = $_SESSION['user_id'] ?? '';
                 <div class="product-price">Status : <?php echo $status; ?></div>
                 <?php if ($_SESSION['role'] === 'Admin') : ?>
                     <div class="text-right">
-                        <a href="index.php?halaman=ubahadmin&id=<?php echo $user['uid']; ?>" class="btn btn-warning">Ubah</a>
+                        <a href="index.php?page=ubahadmin&id=<?php echo $user['uid']; ?>" class="btn btn-warning">Ubah</a>
                     </div>
                 <?php endif; ?>
             </div>

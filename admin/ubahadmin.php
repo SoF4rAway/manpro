@@ -5,39 +5,29 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-$koneksi = new mysqli("localhost", "root", "", "farmasi");
-
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
-    // Query to retrieve data based on ID
-    $userQuery = $koneksi->query("SELECT * FROM user WHERE uid = $id");
+    $stmt = $koneksi->prepare("SELECT * FROM user WHERE uid = :id");
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+    $stmt->execute();
 
-    if ($userQuery->num_rows > 0) {
-        $data = $userQuery->fetch_assoc();
+    if ($stmt->rowCount() > 0) {
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
         $tableName = 'user';
     } else {
         echo "Data not found";
         exit();
     }
+    $stmt->closeCursor();
 } else {
     // Redirect the user to the appropriate page if 'id' is not set
-    header("Location: admin.php");
+    header("Location: index.php?page=admin");
     exit();
 }
 ?>
 
-<!-- HTML and Form for Editing Data -->
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Data</title>
-    <!-- Add your styles or include CSS here -->
-</head>
-
+<?= template_header($userName, $date); ?>
 <body>
     <h2>Edit Data</h2>
 
@@ -49,18 +39,38 @@ if (isset($_GET['id'])) {
 
         // Validate and update data in the database
         // Use prepared statements to prevent SQL injection
-        $stmt = $koneksi->prepare("UPDATE $tableName SET nama = ?, telepon = ?, password = ? WHERE uid = ?");
-        $stmt->bind_param('ssss', $nama, $telepon, $password, $id);
+        $stmt = $koneksi->prepare("UPDATE user SET nama = :nama, telepon = :telepon, password = :password WHERE uid = :id");
+        $stmt->bindParam(':nama', $nama, PDO::PARAM_STR);
+        $stmt->bindParam(':telepon', $telepon, PDO::PARAM_STR);
+        $stmt->bindParam(':password', $password, PDO::PARAM_STR);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
-        $stmt->close();
+        $stmt->closeCursor();
+
 
         // Show success message
         echo "<div class='alert alert-success'>Data updated successfully</div>";
 
         // Redirect to the appropriate page after updating
-        header("refresh:2;url=index.php");
+        header("refresh:2;url=index.php?page=");
         exit();
     }
+
+    if (isset($_POST['delete'])) {
+        // Delete data based on ID
+        $stmt = $koneksi->prepare("DELETE FROM user WHERE uid = :id");
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $stmt->closeCursor();
+
+        // Show success message
+        echo "<div class='alert alert-info'>Data deleted successfully</div>";
+
+        // Redirect to the appropriate page after deleting
+        header("refresh:2;url=index.php?page=admin");
+        exit();
+    }
+
     ?>
 
     <form method="post" enctype="multipart/form-data">
@@ -77,6 +87,7 @@ if (isset($_GET['id'])) {
             <input type="password" class="form-control" name="password">
         </div>
         <button class="btn btn-primary" name="update">Update</button>
+        <button class="btn btn-danger" name="delete">Delete</button>
     </form>
 
     <!-- Add your additional HTML or scripts here -->

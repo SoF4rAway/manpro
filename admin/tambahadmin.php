@@ -31,7 +31,7 @@
 
 <?php
 
-if (!isset($_SESSION['username'])) {
+if (!isset($_SESSION['isLoggedIn'])) {
     echo "<script>alert('Anda belum login, silahkan login terlebih dahulu.'); window.location.href = 'login.php';</script>";
     exit();
 }
@@ -46,31 +46,32 @@ if (isset($_POST['save'])) {
     if (empty($nama) || empty($telepon) || empty($status)) {
         echo "<div class='alert alert-danger'>Harap lengkapi semua field</div>";
     } else {
-        // Save the data to the appropriate table based on the selected status
-        $koneksi = new mysqli('localhost', 'root', '', 'farmasi');
+        try {
+            $stmt = $koneksi->prepare("INSERT INTO user (username, nama, password, telepon, admin) VALUES(:username, :nama, :password, :telepon, :role)");
 
-        if ($koneksi->connect_error) {
-            die("Connection failed: " . $koneksi->connect_error);
+            // Use prepared statements to prevent SQL injection
+            if ($status === 'admin') {
+                $role = 1;
+            } else {
+                $role = 0;
+            }
+
+            // Hash the password before storing it in the database
+            $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+            $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+            $stmt->bindParam(':nama', $nama, PDO::PARAM_STR);
+            $stmt->bindParam(':password', $password, PDO::PARAM_STR);
+            $stmt->bindParam(':telepon', $telepon, PDO::PARAM_STR);
+            $stmt->bindParam(':role', $role, PDO::PARAM_INT);
+            $stmt->execute();
+            $stmt->closeCursor();
+
+            echo "<div class='alert alert-info'>Data tersimpan</div>";
+            header("refresh:1;url=index.php?page=pegawai");
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
         }
-
-        $stmt = $koneksi->prepare("INSERT INTO user (username, nama, password ,telepon, admin) VALUES(?, ?, ?, ?, ?)");
-
-        // Use prepared statements to prevent SQL injection
-        if ($status === 'admin') {
-            $role = 1;
-        } else {
-            $role = 0;;
-        }
-
-        // Hash the password before storing it in the database
-        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
-        $stmt->bind_param('sssss', $username, $nama, $password, $telepon, $role);
-        $stmt->execute();
-        $stmt->close();
-
-        echo "<div class='alert alert-info'>Data tersimpan</div>";
-        header("refresh:1;url=index.php?halaman=pelanggan");
     }
 }
 ?>
