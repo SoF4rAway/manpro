@@ -31,6 +31,7 @@ if (isset($_POST['login'])) {
             $_SESSION['username'] = $username;
             $_SESSION['nama'] = $row['nama'];
             $_SESSION['isAdmin'] = $row['admin'] == 1;
+            $_SESSION['isLoggedIn'] = true;
 
             if ($_SESSION['isAdmin']) {
                 $_SESSION['role'] = 'Admin'; // Set the role here
