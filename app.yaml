@@ -1,0 +1,35 @@
+runtime: php70
+
+env: standard
+
+service: elixir-system # Replace with your actual service name
+
+# Threadsafe is recommended for most PHP applications
+threadsafe: true
+
+runtime_config:
+  # Define the document root for your application
+  document_root: admin
+
+# Define the handler for all requests
+handlers:
+  - url: /.*
+    script: index.php
+
+
+# Environment variables for PDO connection (replace with your details)
+env_variables:
+  CLOUDSQL_DSN: "mysql:unix_socket=/cloudsql/elixir-system:asia-southeast2:elixirapp;dbname=farmasi"  # Replace with your PDO connection string
+  CLOUDSQL_USER: "root"  # Replace with your database username
+  CLOUDSQL_PASSWORD: "6e]r`RUpdS0Tug#z"  # Replace with your database password
+
+
+# Configure serving static media files
+static_files:
+  - path: /.*
+    mime_type: application/octet-stream  # Serve all files with generic type
+
+# Optional: Configure libraries (if needed)
+libraries:
+  - name: composer
+    version: "latest"

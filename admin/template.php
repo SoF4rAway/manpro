@@ -57,7 +57,7 @@ function template_header($userName, $date){
     <link href="assets/css/custom.css" rel="stylesheet" />
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
     <link rel="Stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="icon" type="image/x-icon" href="assets/favi.ico" />
+    <link rel="icon" type="image/x-icon" href="assets/img/find_user.jpg" />
     <style>
         .navbar {
             background-color: #FF2400;
@@ -68,9 +68,10 @@ function template_header($userName, $date){
         .date-display {
             position: absolute;
             top: 15px;
-            left: 90vh;
+            right: 15px;
             font-size: 20px;
             color: #FFF;
+          
         }
         .welcome-message {
             position: absolute;
@@ -109,7 +110,7 @@ function template_header($userName, $date){
         </nav>
         <div id="page-wrapper">
         <div class="welcome-message">
-            <h3>Selamat datang $userName</h3>
+            <h3>Selamat Datang $userName</h3>
         </div>
 EOF;
 }

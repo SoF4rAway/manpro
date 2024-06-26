@@ -214,7 +214,7 @@ $ambil = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($ambil as $pecah) {
         ?>
         <div class="card">
-            <img src="../foto_produk/<?php echo $pecah['foto_obat']; ?>" class="card-img-top" alt="Product Image">
+            <img src="foto_produk/<?php echo $pecah['foto_obat']; ?>" class="card-img-top" alt="Product Image">
             <div class="card-body">
                 <h5 class="card-title product-name"><?php echo $pecah['nama_obat']; ?></h5>
                 <?php if (isset($pecah['stok'])) : ?>
