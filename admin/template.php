@@ -57,7 +57,7 @@ function template_header($userName, $date){
     <link href="assets/css/custom.css" rel="stylesheet" />
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
     <link rel="Stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="icon" type="image/x-icon" href="assets/favi.ico" />
+    <link rel="icon" type="image/x-icon" href="assets/img/find_user.jpg" />
     <style>
         .navbar {
             background-color: #FF2400;
