@@ -137,6 +137,7 @@ INSERT INTO `user` (`uid`, `username`, `nama`, `telepon`, `password`, `admin`) V
 (2, 'admin', 'Admin', NULL, '$2y$10$SF30wq2tCUf9HCecea9wB.d49hI1mm5pD3FaNmtIg3I.HB/EWpMS2', 1),
 (5, 'f4r', 'Muhammad Farid Rahman', '082129295903', '$2y$10$yu.WlvNj53dt0oN0hFd6Vu54nW/yYPbLkNVGVh3jALQswY.gsW5DC', 0);
 
+
 --
 -- Indexes for dumped tables
 --
