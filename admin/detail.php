@@ -59,7 +59,7 @@ if (isset($_GET['id'])) {
     <div class="row text-justify">
         <!-- Column for the image -->
         <div class="col-md-6">
-            <img src="../foto_produk/<?=$product['foto_obat']?>" class="img-thumbnail" alt="<?=$product['nama_obat']?>">
+            <img src="foto_produk/<?=$product['foto_obat']?>" class="img-thumbnail" alt="<?=$product['nama_obat']?>">
         </div>
         <!-- Column for the product name, description, price, etc. -->
         <div class="col-md-6">

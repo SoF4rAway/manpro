@@ -144,7 +144,7 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
                     <tr>
                         <td class="img">
                             <a href="index.php?page=product&id=<?=$product['id_obat']?>">
-                                <img src="../foto_produk/<?=$product['foto_obat']?>" width="50" height="50" alt="<?=$product['nama_obat']?>">
+                                <img src="foto_produk/<?=$product['foto_obat']?>" width="50" height="50" alt="<?=$product['nama_obat']?>">
                             </a>
                         </td>
                         <td>
