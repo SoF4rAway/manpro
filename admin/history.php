@@ -1,5 +1,5 @@
 <?php
-$stmt = $koneksi->prepare("SELECT * FROM pembelian ORDER BY tanggal_pembelian DESC");
+$stmt = $koneksi->prepare("SELECT * FROM penjualan ORDER BY tanggal DESC, id_penjualan DESC");
 $stmt->execute();
 $ambil = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -32,11 +32,12 @@ $ambil = $stmt->fetchAll(PDO::FETCH_ASSOC);
         ?>
         <tr>
             <td><?php echo $nomor; ?></td>
-            <td><?php echo $pecah['id_pembelian']; ?></td>
-            <td><?php echo $pecah['tanggal_pembelian']; ?></td>
-            <td><?php echo $pecah['total_pembelian']; ?></td>
+            <td><?php echo $pecah['id_penjualan']; ?></td>
+            <td><?php echo $pecah['tanggal']; ?></td>
+            <td><?php echo $pecah['total_penjualan']; ?></td>
             <td>
-                <a href="index.php?page=detailpenjualan&id=<?php echo $pecah['id_pembelian']; ?>" class="btn btn-info">Detail</a>
+                <a href="index.php?page=detailpenjualan&id=<?php echo $pecah['id_penjualan']; ?>" class="btn btn-info">Detail</a>
+                <a href="index.php?page=report_page&id=<?php echo $pecah['id_penjualan']; ?>" class="btn btn-info">Invoice</a>
             </td>
         </tr>
         <?php

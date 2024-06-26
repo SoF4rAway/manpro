@@ -33,6 +33,7 @@ foreach ($detail_penjualan as $detail) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="assets/css/bootstrap.css" rel="stylesheet" />
     <title>Invoice</title>
     <style>
         body {
@@ -71,6 +72,21 @@ foreach ($detail_penjualan as $detail) {
         .total {
             font-weight: bold;
         }
+        .btn-primary {
+            color: white;
+            background-color: red;
+            border: 1px solid red;
+            border-radius: 20px;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s, border-radius 0.3s;
+        }
+
+        .btn-primary:hover {
+            color: white;
+            background-color: darkred;
+            border-color: darkred;
+            border-radius: 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -109,9 +125,10 @@ foreach ($detail_penjualan as $detail) {
             ?>
         </tr>
     </table>
+    <br>
     <div class="buttons">
-        <a href="index.php"><button>Home</button></a>
-        <a href="index.php?page=download_invoice"><button>Download PDF</button></a>
+        <a class="btn-primary btn" href="index.php">Home</a>
+        <a class="btn btn-primary" href="index.php?page=download_invoice">Download PDF</a>
     </div>
 
 </div>

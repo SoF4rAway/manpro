@@ -37,6 +37,12 @@ function adminChecks(){
     }
 
     $checkAdmin->close();
+    unset ($_SESSION['username']);
+    unset($_SESSION['nama']);
+    unset($_SESSION['isAdmin']);
+    unset($_SESSION['role']);
+    unset($_SESSION['isLoggedIn']);
+
 }
 function template_header($userName, $date){
     echo <<<EOF

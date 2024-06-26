@@ -4,44 +4,84 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-if ($koneksi->connect_error) {
-    die("Connection failed: " . $koneksi->connect_error);
-}
+$id_penjualan = $_GET['id'];
 
+// Fetch penjualan details (assuming you need them)
+$stmt = $koneksi->prepare("SELECT * FROM penjualan WHERE id_penjualan = :id_penjualan");
+$stmt->bindParam(":id_penjualan", $id_penjualan);
+$stmt->execute();
+$penjualan = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Fetch detail_penjualan details
+$stmt = $koneksi->prepare("SELECT * FROM detail_penjualan WHERE id_penjualan = :id_penjualan");
+$stmt->bindParam(":id_penjualan", $id_penjualan);
+$stmt->execute();
+$detail_penjualan = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch nama_obat and foto_obat from obat table for each id_obat
+$obat = [];
+foreach ($detail_penjualan as $detail) {
+    $id_obat = $detail['id_obat'];
+    $stmt = $koneksi->prepare("SELECT nama_obat, harga, foto_obat FROM obat WHERE id_obat = :id_obat");
+    $stmt->bindParam(":id_obat", $id_obat);
+    $stmt->execute();
+    $obat[$id_obat] = [
+        'nama_obat' => $stmt->fetchColumn(0), // Fetch nama_obat
+        'harga' => $detail['harga'], // Use harga from detail_penjualan
+        'quantity' => $detail['quantity'], // Use quantity from detail_penjualan
+        'foto_obat' => $stmt->fetchColumn(2), // Fetch foto_obat
+    ];
+}
 ?>
 
-<h2>Data Penjualan</h2>
+<?=template_header($userName, $date)?>
 
+<h2>Transaction Details</h2>
+
+<p>Transaction Date: <?php echo $penjualan['tanggal']; ?></p>
+<p>Transaction ID: <?php echo $id_penjualan; ?></p>
 <table class="table table-bordered">
     <thead>
-        <tr>
-            <th>No</th>
-            <th>ID Penjualan</th>
-            <th>Jumlah Obat</th>
-            <th>Tanggal</th>
-            <th>ID Obat</th>
-            <th>ID Pembelian</th>
-            <th>Total</th>
-        </tr>
+    <tr>
+        <th>No</th>
+        <th>ID Obat</th>
+        <th>Nama Obat</th>
+        <th>Harga Per QTY</th>
+        <th>Jumlah</th>
+        <th>Subtotal</th>
+    </tr>
     </thead>
     <tbody>
-        <?php
-        $nomor = 1;
-        $ambil = $koneksi->query("SELECT penjualan.*, obat.harga FROM penjualan JOIN obat ON penjualan.id_obat = obat.id_obat");
+    <?php
+    $nomor = 1;
+    $total_amount = 0;
+    foreach ($detail_penjualan as $detail) {
+        $id_obat = $detail['id_obat'];
+        $nama_obat = $obat[$id_obat]['nama_obat'];
+        $harga = $detail['harga'];
+        $quantity = $detail['quantity'];
+        $subtotal = $harga * $quantity;
+        $total_amount += $subtotal;
 
-        while ($pecah = $ambil->fetch_assoc()) {
-            $total = $pecah['jumlah_obat'] * $pecah['harga'];
-            ?>
-            <tr>
-                <td><?php echo $nomor; ?></td>
-                <td><?php echo $pecah['no_penjualan']; ?></td>
-                <td><?php echo $pecah['jumlah_obat']; ?></td>
-                <td><?php echo $pecah['tanggal']; ?></td>
-                <td><?php echo $pecah['id_obat']; ?></td>
-                <td><?php echo $pecah['id_pembelian']; ?></td>
-                <td><?php echo $total; ?></td>
-            </tr>
-            <?php $nomor++; ?>
-        <?php } ?>
+        echo "<tr>";
+        echo "<td>$nomor</td>";
+        echo "<td>$id_obat</td>";
+        echo "<td>$nama_obat</td>";
+        echo "<td>Rp. $harga</td>";
+        echo "<td>$quantity</td>";
+        echo "<td>Rp. $subtotal</td>";
+        echo "</tr>";
+        $nomor++;
+    }
+    ?>
+    <tr class="total">
+        <td colspan="5"><strong>Total Amount:</strong></td>
+        <?php
+        echo"<td colspan='1'><strong>Rp. $total_amount</strong></td>"
+        ?>
+    </tr>
     </tbody>
 </table>
+
+<a class="btn btn-primary" href="index.php?page=history">kembali</a>
+<a class="btn btn-primary" href="index.php?page=home">Home</a>
