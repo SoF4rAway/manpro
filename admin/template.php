@@ -68,9 +68,10 @@ function template_header($userName, $date){
         .date-display {
             position: absolute;
             top: 15px;
-            left: 90vh;
+            right: 15px;
             font-size: 20px;
             color: #FFF;
+          
         }
         .welcome-message {
             position: absolute;
@@ -109,7 +110,7 @@ function template_header($userName, $date){
         </nav>
         <div id="page-wrapper">
         <div class="welcome-message">
-            <h3>Selamat datang $userName</h3>
+            <h3>Selamat Datang $userName</h3>
         </div>
 EOF;
 }
