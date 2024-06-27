@@ -1,3 +1,6 @@
+<?=template_header($userName, $date)?>
+
+
 <h2>Ubah Produk</h2>
 
 <?php
@@ -60,6 +63,7 @@ if (isset($_GET['id'])) {
         </div>
         
         <button class="btn btn-primary" name="ubah">Ubah</button>
+        <a href="index.php?page=detail&id=<?php echo $pecah['id_obat']; ?>" class="btn btn-primary">Kembali</a>
     </form>
 
 <?php

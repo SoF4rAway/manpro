@@ -10,16 +10,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nama_obat = $_POST["nama_obat"];
     $stok = $_POST["stok"];
     $harga = $_POST["harga"];
+    $deskripsi = $_POST["deskripsi"];
     $foto_obat = $_FILES["foto_obat"]["name"];
     $foto_tmp = $_FILES["foto_obat"]["tmp_name"];
 
-    move_uploaded_file($foto_tmp, "../foto_produk/" . $foto_obat);
+    move_uploaded_file($foto_tmp, "foto_produk/" . $foto_obat);
 
     // Use prepared statements to insert data into the database
-    $stmt = $koneksi->prepare("INSERT INTO obat (nama_obat, stok, harga, foto_obat) VALUES (:nama_obat, :stok, :harga, :foto_obat)");
+    $stmt = $koneksi->prepare("INSERT INTO obat (nama_obat, stok, harga, deskripsi, foto_obat) VALUES (:nama_obat, :stok, :harga, :deskripsi, :foto_obat)");
     $stmt->bindParam(':nama_obat', $nama_obat);
     $stmt->bindParam(':stok', $stok);
     $stmt->bindParam(':harga', $harga);
+    $stmt->bindParam(':deskripsi', $deskripsi);
     $stmt->bindParam(':foto_obat', $foto_obat);
     $stmt->execute();
 
@@ -119,6 +121,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div>
                 <label for="harga">Harga</label>
                 <input type="number" id="harga" name="harga" required>
+            </div>
+            <div>
+                <label for="deskripsi">Deskripsi</label>
+                <input type="text" id="deskripsi" name="deskripsi" required>
             </div>
             <div>
                 <label for="foto_obat">Foto Obat</label>
