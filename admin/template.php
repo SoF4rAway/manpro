@@ -1,13 +1,12 @@
 <?php
 function db_conn(){
-    $DATABASE_HOST = "localhost";
-    $DATABASE_USER = "root";
-    $DATABASE_PASS = "";
-    $DATABASE_NAME = "farmasi";
+    $DB_DSN=getenv("CLOUDSQL_DSN");
+    $DB_USER=getenv("CLOUDSQL_USER");
+    $DB_PASS=getenv("CLOUDSQL_PASSWORD");
 
     try {
-        $dsn = "mysql:host=$DATABASE_HOST;dbname=$DATABASE_NAME";
-        $koneksi = new PDO($dsn, $DATABASE_USER, $DATABASE_PASS);
+        $dsn = $DB_DSN;
+        $koneksi = new PDO($dsn, $DB_USER, $DB_PASS);
         $koneksi->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $koneksi;
     } catch (PDOException $e) {
